@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
+set (CMAKE_CXX_STANDARD 11)
 project(object_tracking)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -18,8 +19,11 @@ find_package(catkin REQUIRED COMPONENTS
     )
 
 ## System dependencies are found with CMake's conventions
-find_package(OpenCV REQUIRED)
-#find_package(PkgConfig)
+find_package(OpenCV 4.5.4 REQUIRED
+    PATHS /usr/local
+    NO_DEFAULT_PATH
+)
+find_package(PkgConfig)
 
 set(DEPS_PATH
     ${CMAKE_CURRENT_SOURCE_DIR}/deps/pid

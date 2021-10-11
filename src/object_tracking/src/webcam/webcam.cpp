@@ -8,29 +8,29 @@ int main(int argc, char **argv)
     ros::NodeHandle nh;
     ros::Rate r(10);
 
-    //WebCamera WebCamera(nh);
+    WebCamera WebCamera(nh);
 
     cv::VideoCapture cap(0);
     
     cv::Mat frame;
-    cv::Mat gray;
+    cv::Mat resized_frame;
 
     if (!cap.isOpened())
         return -1;
-
     
     cv::namedWindow("Window_Default", cv::WINDOW_NORMAL);
 
-    while(ros::ok())
+    while(true)
     {
         ros::spinOnce();
-        printf("the fuck");
         cap >> frame;
-        cv::imshow("frame", frame);
-        r.sleep();
+        cv::resize(frame,resized_frame,cv::Size(600,400),cv::INTER_LINEAR);
+        cv::imshow("resized_frame", resized_frame);
+        //r.sleep();
 		if(cv::waitKey(1)=='q')
 			break;
-
     }
+    cap.release();
+    cv::destroyAllWindows();
     return 0;
 }
