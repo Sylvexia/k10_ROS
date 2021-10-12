@@ -2,10 +2,7 @@
 
 ---
 
-## This stuff just cannot be run
+## DEV_LOG
 
-```=bash
-catkin_make # can be compiled but warn version conflict
-rosrun object_tracking test_node # this node can be execute
-rosrun object_tracking webcam_node # this node cannot
-```
+- 10/10 initial commit, really messed up
+- 10/12 object encapsulated Webcam, resize may segment fault so commented
