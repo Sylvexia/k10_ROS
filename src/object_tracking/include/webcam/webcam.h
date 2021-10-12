@@ -14,18 +14,27 @@ class WebCamera
 {
 
 private:
-    ros::NodeHandle nodehandle_;
+    ros::NodeHandle nh_;
 
     image_transport::ImageTransport image_transport_;
     image_transport::Publisher publisher_;
 
-    cv_bridge::CvImage ImageTransport(cv::Mat &image);
+    cv::VideoCapture cap_;
+    
+    cv::Mat frame_;
+    cv::Mat resized_frame_;
+    //cv_bridge::CvImage ImageTransport(cv::Mat &image);
 
+    sensor_msgs::ImagePtr img_msg_;
+    
 public:
     WebCamera(ros::NodeHandle &nh);
     ~WebCamera();
 
+    bool Capture();
     bool Publish();
+    bool Imshow(int x,int y);
+
 };
 
 #endif

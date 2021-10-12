@@ -4,33 +4,24 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "webcam");
+    ros::init(argc, argv, "webcam_publisher");
     ros::NodeHandle nh;
-    ros::Rate r(10);
+    ros::Rate loop_rate(60);
 
     WebCamera WebCamera(nh);
 
-    cv::VideoCapture cap(0);
-    
-    cv::Mat frame;
-    cv::Mat resized_frame;
-
-    if (!cap.isOpened())
-        return -1;
-    
-    cv::namedWindow("Window_Default", cv::WINDOW_NORMAL);
-
-    while(true)
+    while(nh.ok())
     {
-        ros::spinOnce();
-        cap >> frame;
-        cv::resize(frame,resized_frame,cv::Size(600,400),cv::INTER_LINEAR);
-        cv::imshow("resized_frame", resized_frame);
-        //r.sleep();
+        WebCamera.Capture();
+        WebCamera.Publish();
+        WebCamera.Imshow(600,800);
+
 		if(cv::waitKey(1)=='q')
 			break;
+        ros::spinOnce();
+
+        loop_rate.sleep();
     }
-    cap.release();
-    cv::destroyAllWindows();
+
     return 0;
 }
