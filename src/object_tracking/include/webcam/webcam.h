@@ -2,13 +2,14 @@
 #define _WEBCAM_H_
 
 #include <ros/ros.h>
-#include <stdio.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 #include <image_transport/image_transport.h>
 
 #include <opencv4/opencv2/opencv.hpp>
 #include <opencv4/opencv2/highgui.hpp>
+#include <opencv4/opencv2/imgproc.hpp>
+#include <opencv4/opencv2/core/types.hpp>
 
 class WebCamera
 {
@@ -20,21 +21,19 @@ private:
     image_transport::Publisher publisher_;
 
     cv::VideoCapture cap_;
-    
+
     cv::Mat frame_;
     cv::Mat resized_frame_;
-    //cv_bridge::CvImage ImageTransport(cv::Mat &image);
 
     sensor_msgs::ImagePtr img_msg_;
-    
+
 public:
     WebCamera(ros::NodeHandle &nh);
     ~WebCamera();
 
     bool Capture();
     bool Publish();
-    bool Imshow(int x,int y);
-
+    bool Imshow(int x, int y);
 };
 
 #endif
