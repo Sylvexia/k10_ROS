@@ -10,6 +10,12 @@ ${OpenCV_LIBS}
 ${catkin_LIBRARIES}
 )
 
+target_link_libraries(cam_to_wheel_node
+cam_to_wheel_lib
+${OpenCV_LIBS}
+${catkin_LIBRARIES}
+)
+
 # target_link_libraries(track_node
 #    track_lib
 #    graph_lib

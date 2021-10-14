@@ -38,8 +38,6 @@ bool WebCamera::Publish()
 bool WebCamera::Imshow(int x, int y)
 {
     cv::resize(frame_, resized_frame_, cv::Size(640, 480));
-    //ROS_INFO("%d, %d", frame_.rows, frame_.cols);
-    //ROS_INFO("%d", resized_frame_.rows);
     cv::imshow("resize_frame", resized_frame_);
     return true;
 }
