@@ -1,0 +1,6 @@
+{
+    "sketch": "wheel_test.ino",
+    "configuration": "cpu=atmega328old",
+    "board": "arduino:avr:nano",
+    "port": "/dev/ttyUSB0"
+}
