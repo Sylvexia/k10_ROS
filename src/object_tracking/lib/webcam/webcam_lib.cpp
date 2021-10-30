@@ -37,7 +37,7 @@ bool WebCamera::Publish()
 
 bool WebCamera::Imshow(int x, int y)
 {
-    cv::resize(frame_, resized_frame_, cv::Size(640, 480));
+    cv::resize(frame_, resized_frame_, cv::Size(x, y));
     cv::imshow("resize_frame", resized_frame_);
     return true;
 }
