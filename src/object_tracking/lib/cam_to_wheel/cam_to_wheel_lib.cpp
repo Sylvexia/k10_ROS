@@ -37,9 +37,8 @@ bool Cam_to_Wheel::Recieve()
 
 bool Cam_to_Wheel::ImageProcess()
 {
-
-    layout_ = cv::Mat::zeros(frame_.size(), CV_8SC3);
-    color_ = cv::Scalar(0, 255, 0); //white
+    cv::Scalar white = cv::Scalar(255, 255, 255);
+    cv::Scalar red = cv::Scalar(0, 0, 255);
 
     //process
     cv::cvtColor(frame_, gray_, cv::COLOR_BGR2GRAY);
@@ -47,12 +46,22 @@ bool Cam_to_Wheel::ImageProcess()
     cv::Canny(blur_, canny_, 20, 160);
     cv::findContours(canny_, contours_, hierachy_, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
-    for (size_t i = 0; i < contours_.size(); i++)
-        cv::drawContours(layout_, contours_, i, color_, 2, cv::LINE_8, hierachy_);
+    std::vector<cv::RotatedRect> minRect(contours_.size());
+    cv::Point2f rect_points[4];
+
+    layout_ = cv::Mat::zeros(frame_.size(), CV_8SC3);
+
+    for (size_t i = 0; i < contours_.size(); ++i)
+    {
+        minRect[i] = cv::minAreaRect(contours_[i]);
+        minRect[i].points(rect_points);
+
+        cv::drawContours(layout_, contours_, i, white, 2, cv::LINE_8, hierachy_);
+        for (int j = 0; j < 4; ++j)
+            cv::line(layout_, rect_points[j], rect_points[(j + 1) % 4], red, 5);
+    }
 
     cv::imshow("layout", layout_);
-
-    ROS_INFO("made it here");
 
     return true;
 }

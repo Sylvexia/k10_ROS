@@ -23,11 +23,9 @@ private:
     cv::Mat blur_;
     cv::Mat canny_;
     cv::Mat layout_;
-    cv::Scalar color_;
 
     std::vector<std::vector<cv::Point>> contours_;
     std::vector<cv::Vec4i> hierachy_;
-    std::vector<cv::RotatedRect> minRect_;
 
 public:
     Cam_to_Wheel(ros::NodeHandle &nh);
