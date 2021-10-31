@@ -24,7 +24,6 @@ void Cam_to_Wheel::RecvCallback(const sensor_msgs::ImageConstPtr &img_msg_)
     }
 
     ImageProcess();
-
     Publish();
 
     return;
@@ -38,17 +37,22 @@ bool Cam_to_Wheel::Recieve()
 
 bool Cam_to_Wheel::ImageProcess()
 {
+
+    layout_ = cv::Mat::zeros(frame_.size(), CV_8SC3);
+    color_ = cv::Scalar(0, 255, 0); //white
+
+    //process
     cv::cvtColor(frame_, gray_, cv::COLOR_BGR2GRAY);
     cv::GaussianBlur(gray_, blur_, cv::Size2d(11, 11), 0);
     cv::Canny(blur_, canny_, 20, 160);
-    cv::findContours(canny_, contours_, hierachy_, cv::RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
-
-    layout_=cv::Mat::zeros(canny_.size(),CV_8SC3);
+    cv::findContours(canny_, contours_, hierachy_, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
 
     for (size_t i = 0; i < contours_.size(); i++)
-        cv::drawContours(layout_, contours_, i, (0, 255, 0), 2, cv::LINE_8, hierachy_);
+        cv::drawContours(layout_, contours_, i, color_, 2, cv::LINE_8, hierachy_);
 
-    cv::imshow("layout", blur_);
+    cv::imshow("layout", layout_);
+
+    ROS_INFO("made it here");
 
     return true;
 }
