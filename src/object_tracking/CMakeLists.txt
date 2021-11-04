@@ -70,6 +70,7 @@ set(LIB_PATHS
 add_message_files(
     FILES
     test_msg.msg
+    wheel_msg.msg
 )
 
 ## Generate services in the 'srv' folder

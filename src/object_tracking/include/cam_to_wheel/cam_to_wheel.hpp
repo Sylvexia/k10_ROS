@@ -7,6 +7,7 @@
 #include <image_transport/image_transport.h>
 #include <opencv2/highgui/highgui.hpp>
 #include <sensor_msgs/image_encodings.h>
+#include <object_tracking/wheel_msg.h>
 
 class Cam_to_Wheel
 {
@@ -16,7 +17,10 @@ private:
     image_transport::ImageTransport img_trans_;
     image_transport::Subscriber sub_;
 
+    ros::Publisher pub_;
+
     const sensor_msgs::ImageConstPtr img_msg_;
+    object_tracking::wheel_msg wheel_msg_;
 
     cv::Mat frame_;
     cv::Mat gray_;

@@ -11,6 +11,13 @@ Cam_to_Wheel::~Cam_to_Wheel()
     ROS_INFO("\nCam_to_Wheel Class Destructed\n");
 }
 
+bool Cam_to_Wheel::Recieve()
+{
+    sub_ = img_trans_.subscribe("camera/image", 1, &Cam_to_Wheel::RecvCallback, this);
+    pub_ = nh_.advertise<object_tracking::wheel_msg>("wheel", 500);
+    return true;
+}
+
 void Cam_to_Wheel::RecvCallback(const sensor_msgs::ImageConstPtr &img_msg_)
 {
     try
@@ -27,12 +34,6 @@ void Cam_to_Wheel::RecvCallback(const sensor_msgs::ImageConstPtr &img_msg_)
     Publish();
 
     return;
-}
-
-bool Cam_to_Wheel::Recieve()
-{
-    sub_ = img_trans_.subscribe("camera/image", 1, &Cam_to_Wheel::RecvCallback, this);
-    return true;
 }
 
 bool Cam_to_Wheel::ImageProcess()
@@ -68,5 +69,13 @@ bool Cam_to_Wheel::ImageProcess()
 
 bool Cam_to_Wheel::Publish()
 {
+    wheel_msg_.left = 69;
+    wheel_msg_.right = 96;
+
+    wheel_msg_.right++;
+    wheel_msg_.left++;
+
+    pub_.publish(wheel_msg_);
+
     return true;
 }
