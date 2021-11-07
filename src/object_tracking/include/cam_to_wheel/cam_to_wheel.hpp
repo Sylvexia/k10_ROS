@@ -1,13 +1,18 @@
 #ifndef _CAM_TO_WHEEL_
 #define _CAM_TO_WHEEL_
 
-#include <ros/ros.h>
+#include <stdlib.h>
 #include <vector>
+
+#include <ros/ros.h>
 #include <cv_bridge/cv_bridge.h>
 #include <image_transport/image_transport.h>
-#include <opencv2/highgui/highgui.hpp>
 #include <sensor_msgs/image_encodings.h>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
 #include <object_tracking/wheel_msg.h>
+#include "pid.hpp"
 
 class Cam_to_Wheel
 {
@@ -23,20 +28,18 @@ private:
     object_tracking::wheel_msg wheel_msg_;
 
     cv::Mat frame_;
-    cv::Mat gray_;
-    cv::Mat blur_;
-    cv::Mat canny_;
-    cv::Mat layout_;
 
-    std::vector<std::vector<cv::Point>> contours_;
-    std::vector<cv::Vec4i> hierachy_;
+    double pixel_dist_x_;
+
+    PID pid_;
 
 public:
-    Cam_to_Wheel(ros::NodeHandle &nh);
+    Cam_to_Wheel(ros::NodeHandle &nh,PID &pid);
     ~Cam_to_Wheel();
 
     bool Recieve();
     bool ImageProcess();
+    bool PID_Control();
     bool Publish();
 
     void RecvCallback(const sensor_msgs::ImageConstPtr &img_msg);
