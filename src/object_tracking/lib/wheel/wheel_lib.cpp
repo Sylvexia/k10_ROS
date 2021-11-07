@@ -13,13 +13,15 @@ Wheel::~Wheel()
 
 bool Wheel::Run()
 {
-    sub_ = nh_.subscribe("wheel", 500, &Wheel::RecvCallback,this);
+    sub_ = nh_.subscribe("wheel", 500, &Wheel::RecvCallback, this);
+    pub_ = nh_.advertise<object_tracking::wheel_msg>("wheel_ctrl", 50);
     return true;
 }
 
 void Wheel::RecvCallback(object_tracking::wheel_msg wheel_msg)
 {
-    ROS_INFO("right: [%d]",wheel_msg.right);
-    ROS_INFO("left: [%d]",wheel_msg.left);
+    ROS_INFO("right: [%d]", wheel_msg.right);
+    ROS_INFO("left: [%d]", wheel_msg.left);
+    pub_.publish(wheel_msg);
     return;
 }
