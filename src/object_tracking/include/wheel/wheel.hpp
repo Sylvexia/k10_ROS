@@ -5,11 +5,14 @@
 #include <std_msgs/String.h>
 #include <object_tracking/wheel_msg.h>
 
+//wheel control for two wheel motor
+
 class Wheel
 {
 private:
     ros::NodeHandle nh_;
     ros::Subscriber sub_;
+    ros::Publisher pub_;
 
 public:
     Wheel(ros::NodeHandle &nh);
