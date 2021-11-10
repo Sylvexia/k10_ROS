@@ -64,31 +64,51 @@ bool Cam_to_Wheel::ImageProcess()
     cv::erode(mask, erosion, std::vector<int>(3, 3), anchor, 6);
     cv::dilate(erosion, dilate, std::vector<int>(3, 3), anchor, 6);
     cv::morphologyEx(dilate, opening, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_CROSS, cv::Size2d(7, 7)), anchor, 1);
-    cv::Canny(opening, canny, 20, 160);
+    cv::Canny(opening, canny, 40, 160);
     cv::findContours(canny, contours, hierachy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
 
-    std::vector<cv::RotatedRect> minRect(contours.size());
+    std::vector<cv::RotatedRect> minRect;
     cv::Point2f rect_points[4];
-    cv::Point2f centers[contours.size()];
     cv::Point2f centroid(0.f, 0.f);
+
+    minRect.reserve(contours.size());
 
     for (size_t i = 0; i < contours.size(); ++i)
     {
-        minRect[i] = cv::minAreaRect(contours[i]);
+        if (cv::contourArea(contours[i]) > 100)
+        {
+            minRect.emplace_back(cv::minAreaRect(contours[i]));
+            cv::drawContours(layout, contours, i, BGR.white, -1, cv::LINE_8);
+        }
+    }
+
+    std::vector<cv::Point2f> centers(minRect.size());
+
+    for (size_t i = 0; i < minRect.size(); ++i)
+    {
         minRect[i].points(rect_points);
 
         centers[i] = minRect[i].center;
         centroid.x += centers[i].x;
         centroid.y += centers[i].y;
 
-        cv::drawContours(layout, contours, i, BGR.white, -1, cv::LINE_8);
         cv::circle(layout, centers[i], 4, BGR.green);
 
         for (int j = 0; j < 4; ++j)
             cv::line(layout, rect_points[j], rect_points[(j + 1) % 4], BGR.red, 5);
     }
-    centroid.x = centroid.x / contours.size();
-    centroid.y = centroid.y / contours.size();
+
+    if (minRect.size() != 0)
+    {
+        centroid.x = centroid.x / (minRect.size());
+        centroid.y = centroid.y / (minRect.size());
+    }
+    else
+    {
+        centroid.x = frame_.cols / 2;
+        centroid.y = frame_.rows / 2;
+    }
+
     cv::circle(layout, centroid, 16, BGR.blue, -1);
 
     pixel_dist_x_ = (frame_.cols / 2) - centroid.x;

@@ -4,6 +4,7 @@
 #include <ros/ros.h>
 #include <object_tracking/wheel_msg.h>
 #include <object_tracking/image_dist_msg.h>
+#include <iostream>
 
 #include "pid.hpp"
 
@@ -17,9 +18,11 @@ private:
     ros::Publisher pub_;
 
     object_tracking::wheel_msg wheel_msg_;
-    uint32_t pixel_dist_x_;
+    double pixel_dist_x_;
 
     PID pid_;
+    
+    double pid_value_;
 
 public:
     Wheel(ros::NodeHandle &nh, PID &pid);
@@ -27,7 +30,7 @@ public:
 
     bool Run();
 
-    void RecvCallback(object_tracking::image_dist_msg dist_msg);
+    void RecvCallback(object_tracking::image_dist_msg img_dist_msg);
 
     bool Publish();
 };

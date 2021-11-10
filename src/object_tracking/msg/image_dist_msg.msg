@@ -1,1 +1,1 @@
-uint32 pixel_dist_x
+float32 pixel_dist_x
