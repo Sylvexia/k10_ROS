@@ -47,14 +47,27 @@ public:
 
 struct HSV_Bound
 {
-    cv::Scalar upper_green = cv::Scalar(77, 255, 255);
-    cv::Scalar lower_green = cv::Scalar(35, 43, 23);
-    cv::Scalar upper_blue = cv::Scalar(99, 255, 255);
-    cv::Scalar lower_blue = cv::Scalar(78, 43, 46);
-    cv::Scalar upper_violet = cv::Scalar(180, 255, 255);
+    cv::Scalar upper_green = cv::Scalar(60, 255, 255);
+    cv::Scalar lower_green = cv::Scalar(40, 43, 46);
+    cv::Scalar upper_blue = cv::Scalar(117, 255, 255);
+    cv::Scalar lower_blue = cv::Scalar(97, 43, 46);
+    cv::Scalar upper_purple = cv::Scalar(146, 255, 255);
+    cv::Scalar lower_purple = cv::Scalar(126, 43, 46);
+    cv::Scalar upper_violet = cv::Scalar(173, 255, 255);
     cv::Scalar lower_violet = cv::Scalar(156, 43, 46);
     cv::Scalar upper_orange = cv::Scalar(25, 255, 255);
-    cv::Scalar lower_orange = cv::Scalar(0, 90, 90);
-}HSV;
+    cv::Scalar lower_orange = cv::Scalar(0, 43, 46);
+    cv::Scalar upper_red = cv::Scalar(6, 255, 255);
+    cv::Scalar lower_red = cv::Scalar(0, 43, 46);
+    cv::Scalar upper_yellow = cv::Scalar(33, 255, 255);
+    cv::Scalar lower_yellow = cv::Scalar(21, 43, 46);
+} HSV;
 
+struct BGR_Color
+{
+    cv::Scalar white = cv::Scalar(255, 255, 255);
+    cv::Scalar red = cv::Scalar(0, 0, 255);
+    cv::Scalar green = cv::Scalar(0, 255, 0);
+    cv::Scalar blue = cv::Scalar(255, 255, 0);
+} BGR;
 #endif

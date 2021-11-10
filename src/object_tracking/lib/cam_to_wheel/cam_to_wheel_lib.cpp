@@ -41,20 +41,16 @@ void Cam_to_Wheel::RecvCallback(const sensor_msgs::ImageConstPtr &img_msg_)
 
 bool Cam_to_Wheel::ImageProcess()
 {
-    cv::Scalar bgr_white = cv::Scalar(255, 255, 255);
-    cv::Scalar bgr_red = cv::Scalar(0, 0, 255);
-    cv::Scalar bgr_green = cv::Scalar(0, 255, 0);
-    cv::Scalar bgr_blue = cv::Scalar(255, 255, 0);
-
     cv::Point2d anchor = cv::Point2d(-1, -1);
 
-    cv::Scalar hsv_upper_set = HSV.upper_green;//uno card
+    cv::Scalar hsv_upper_set = HSV.upper_green;
     cv::Scalar hsv_lower_set = HSV.lower_green;
 
     cv::Mat blur;
     cv::Mat hsv;
     cv::Mat mask;
     cv::Mat opening;
+    cv::Mat closing;
     cv::Mat erosion;
     cv::Mat dilate;
     cv::Mat canny;
@@ -67,11 +63,11 @@ bool Cam_to_Wheel::ImageProcess()
     cv::GaussianBlur(frame_, blur, cv::Size2d(11, 11), 0);
     cv::cvtColor(blur, hsv, cv::COLOR_BGR2HSV);
     cv::inRange(hsv, hsv_lower_set, hsv_upper_set, mask);
-    cv::morphologyEx(mask, opening, cv::MORPH_OPEN, std::vector<int>(5, 5), anchor, 2);
-    cv::erode(opening, erosion, std::vector<int>(5, 5), anchor, 2);
-    cv::Canny(erosion, canny, 20, 160);
-    cv::dilate(canny, dilate, std::vector<int>(5, 5), anchor, 2);
-    cv::findContours(canny, contours, hierachy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+    cv::erode(mask, erosion, std::vector<int>(3, 3), anchor, 6);
+    cv::dilate(erosion, dilate, std::vector<int>(3, 3), anchor, 6);
+    cv::morphologyEx(dilate, opening, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_CROSS, cv::Size2d(7, 7)), anchor, 1);
+    cv::Canny(opening, canny, 20, 160);
+    cv::findContours(canny, contours, hierachy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
 
     std::vector<cv::RotatedRect> minRect(contours.size());
     cv::Point2f rect_points[4];
@@ -87,21 +83,23 @@ bool Cam_to_Wheel::ImageProcess()
         centroid.x += centers[i].x;
         centroid.y += centers[i].y;
 
-        cv::drawContours(layout, contours, i, bgr_white, 2, cv::LINE_8, hierachy);
-        cv::circle(layout, centers[i], 4, bgr_green);
+        cv::drawContours(layout, contours, i, BGR.white, -1, cv::LINE_8);
+        cv::circle(layout, centers[i], 4, BGR.green);
 
         for (int j = 0; j < 4; ++j)
-            cv::line(layout, rect_points[j], rect_points[(j + 1) % 4], bgr_red, 5);
+            cv::line(layout, rect_points[j], rect_points[(j + 1) % 4], BGR.red, 5);
     }
     centroid.x = centroid.x / contours.size();
     centroid.y = centroid.y / contours.size();
-    cv::circle(layout, centroid, 16, bgr_blue, -1);
+    cv::circle(layout, centroid, 16, BGR.blue, -1);
 
     pixel_dist_x_ = (frame_.cols / 2) - centroid.x;
 
     cv::imshow("mask", mask);
     cv::imshow("canny", canny);
+    cv::imshow("erosion", erosion);
     cv::imshow("dilate", dilate);
+    cv::imshow("opening", opening);
     cv::imshow("layout", layout);
 
     return true;

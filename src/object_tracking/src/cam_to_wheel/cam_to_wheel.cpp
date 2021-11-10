@@ -13,7 +13,7 @@ int main(int argc, char **argv)
 
     PID pid(kp, ki, kd, 0.0);
 
-    Cam_to_Wheel cam_to_wheel(nh,pid);
+    Cam_to_Wheel cam_to_wheel(nh, pid);
 
     cam_to_wheel.Recieve();
 
