@@ -1,7 +1,7 @@
 #include "cam_to_wheel/cam_to_wheel.hpp"
 
-Cam_to_Wheel::Cam_to_Wheel(ros::NodeHandle &nh, PID &pid)
-    : nh_(nh), img_trans_(nh), pid_(pid), pixel_dist_x_(0.0)
+Cam_to_Wheel::Cam_to_Wheel(ros::NodeHandle &nh)
+    : nh_(nh), img_trans_(nh), pixel_dist_x_(0.0)
 {
     ROS_INFO("\nCam_to_Wheel Class Constructed\n");
 }
@@ -14,9 +14,8 @@ Cam_to_Wheel::~Cam_to_Wheel()
 bool Cam_to_Wheel::Recieve()
 {
     sub_ = img_trans_.subscribe("camera/image", 1, &Cam_to_Wheel::RecvCallback, this);
-    pub_ = nh_.advertise<object_tracking::wheel_msg>("wheel", 500);
+    pub_ = nh_.advertise<object_tracking::image_dist_msg>("cam/wheel", 500);
 
-    pid_.init();
     return true;
 }
 
@@ -33,7 +32,6 @@ void Cam_to_Wheel::RecvCallback(const sensor_msgs::ImageConstPtr &img_msg_)
     }
 
     ImageProcess();
-    PID_Control();
     Publish();
 
     return;
@@ -105,23 +103,11 @@ bool Cam_to_Wheel::ImageProcess()
     return true;
 }
 
-bool Cam_to_Wheel::PID_Control()
-{
-    ROS_INFO("Pixel_Distance_X[%f]", pixel_dist_x_);
-    ROS_INFO("Control Variable[%f]", pid_.pidCtrl(pixel_dist_x_, 0.0));
-
-    return true;
-}
-
 bool Cam_to_Wheel::Publish()
 {
-    wheel_msg_.left = 69;
-    wheel_msg_.right = 96;
+    dist_msg_.pixel_dist_x = pixel_dist_x_;
 
-    wheel_msg_.right++;
-    wheel_msg_.left++;
-
-    //pub_.publish(wheel_msg_);
+    pub_.publish(dist_msg_);
 
     return true;
 }

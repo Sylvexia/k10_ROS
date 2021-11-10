@@ -2,11 +2,14 @@
 
     <node name="webcam_node" pkg="object_tracking" type="webcam_node" output="screen"/>
 
-    <node name="cam_to_wheel_node" pkg="object_tracking" type="cam_to_wheel_node" output="screen">
+    <node name="cam_to_wheel_node" pkg="object_tracking" type="cam_to_wheel_node" output="screen"/>
+
+    <node name="wheel_node" pkg="object_tracking" type="wheel_node" output="screen">
+
         <param name="kp" type="double" value="2.0"/>
         <param name="ki" type="double" value="0"/>
         <param name="kd" type="double" value="0"/>
+
     </node>
 
-    <node name="wheel_node" pkg="object_tracking" type="wheel_node" output="screen"/>
 </launch>

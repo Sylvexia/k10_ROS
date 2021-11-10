@@ -71,6 +71,7 @@ add_message_files(
     FILES
     test_msg.msg
     wheel_msg.msg
+    image_dist_msg.msg
 )
 
 ## Generate services in the 'srv' folder

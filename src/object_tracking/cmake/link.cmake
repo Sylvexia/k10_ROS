@@ -12,13 +12,13 @@ ${catkin_LIBRARIES}
 
 target_link_libraries(cam_to_wheel_node
 cam_to_wheel_lib
-pid
 ${OpenCV_LIBS}
 ${catkin_LIBRARIES}
 )
 
 target_link_libraries(wheel_node
 wheel_lib
+pid
 ${catkin_LIBRARIES}
 )
 

@@ -1,0 +1,1 @@
+uint32 pixel_dist_x
