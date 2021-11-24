@@ -4,26 +4,23 @@
 
 ros::NodeHandle nh;
 
-void wheelCallback(object_tracking::wheel_msg &wheel_msg)
+void wheelCallback(const object_tracking::wheel_msg& wheel_msg)
 {
-    digitalWrite(LED_BUILTIN, HIGH - digitalRead(LED_BUILTIN));
-    Serial.println(wheel_msg.left);
+    int right = wheel_msg.right;
+    String str_right = String(right);
+    nh.loginfo(str_right.c_str());
 }
 
 ros::Subscriber<object_tracking::wheel_msg> sub("wheel", &wheelCallback);
 
 void setup()
 {
-    Serial.begin(9600);
-    Serial.print(123);
-    pinMode(LED_BUILTIN, OUTPUT);
     nh.initNode();
     nh.subscribe(sub);
 }
 
 void loop()
 {
-    Serial.print(123);
     nh.spinOnce();
-    delay(1);
+    delay(100);//10 is too small that shitty nano cannot catch on
 }
