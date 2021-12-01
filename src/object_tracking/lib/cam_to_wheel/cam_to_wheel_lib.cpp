@@ -37,88 +37,36 @@ void Cam_to_Wheel::RecvCallback(const sensor_msgs::ImageConstPtr &img_msg_)
     return;
 }
 
-bool Cam_to_Wheel::ImageProcess()
+bool Cam_to_Wheel::ImageProcess() //return the double dist_x_
 {
     cv::Point2d anchor = cv::Point2d(-1, -1);
 
     cv::Scalar hsv_upper_set = HSV.upper_green;
     cv::Scalar hsv_lower_set = HSV.lower_green;
 
-    cv::Mat blur;
-    cv::Mat hsv;
-    cv::Mat mask;
-    cv::Mat opening;
-    cv::Mat closing;
-    cv::Mat erosion;
-    cv::Mat dilate;
-    cv::Mat canny;
-    cv::Mat layout = cv::Mat::zeros(frame_.size(), CV_8SC3);
+    layout_ = cv::Mat::zeros(frame_.size(), CV_8SC3);
 
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Vec4i> hierachy;
 
-    //process
-    cv::GaussianBlur(frame_, blur, cv::Size2d(11, 11), 0);
-    cv::cvtColor(blur, hsv, cv::COLOR_BGR2HSV);
-    cv::inRange(hsv, hsv_lower_set, hsv_upper_set, mask);
-    cv::erode(mask, erosion, std::vector<int>(3, 3), anchor, 6);
-    cv::dilate(erosion, dilate, std::vector<int>(3, 3), anchor, 6);
-    cv::morphologyEx(dilate, opening, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_CROSS, cv::Size2d(7, 7)), anchor, 1);
-    cv::Canny(opening, canny, 40, 160);
-    cv::findContours(canny, contours, hierachy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+    //pre process
+    cv::GaussianBlur(frame_, blur_, cv::Size2d(11, 11), 0);
+    cv::cvtColor(blur_, hsv_, cv::COLOR_BGR2HSV);
+    cv::inRange(hsv_, hsv_lower_set, hsv_upper_set, mask_);
+    cv::erode(mask_, erosion_, std::vector<int>(3, 3), anchor, 6);
+    cv::dilate(erosion_, dilate_, std::vector<int>(3, 3), anchor, 6);
+    cv::morphologyEx(dilate_, opening_, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_CROSS, cv::Size2d(7, 7)), anchor, 1);
+    cv::Canny(opening_, canny_, 40, 160);
+    //pre process
+    pre_proc_=canny_;
+    ImageWeightedCentroid();
 
-    std::vector<cv::RotatedRect> minRect;
-    cv::Point2f rect_points[4];
-    cv::Point2f centroid(0.f, 0.f);
 
-    minRect.reserve(contours.size());
-
-    for (size_t i = 0; i < contours.size(); ++i)
-    {
-        if (cv::contourArea(contours[i]) > 100)
-        {
-            minRect.emplace_back(cv::minAreaRect(contours[i]));
-            cv::drawContours(layout, contours, i, BGR.white, -1, cv::LINE_8);
-        }
-    }
-
-    std::vector<cv::Point2f> centers(minRect.size());
-
-    for (size_t i = 0; i < minRect.size(); ++i)
-    {
-        minRect[i].points(rect_points);
-
-        centers[i] = minRect[i].center;
-        centroid.x += centers[i].x;
-        centroid.y += centers[i].y;
-
-        cv::circle(layout, centers[i], 4, BGR.green);
-
-        for (int j = 0; j < 4; ++j)
-            cv::line(layout, rect_points[j], rect_points[(j + 1) % 4], BGR.red, 5);
-    }
-
-    if (minRect.size() != 0)
-    {
-        centroid.x = centroid.x / (minRect.size());
-        centroid.y = centroid.y / (minRect.size());
-    }
-    else
-    {
-        centroid.x = frame_.cols / 2;
-        centroid.y = frame_.rows / 2;
-    }
-
-    cv::circle(layout, centroid, 16, BGR.blue, -1);
-
-    pixel_dist_x_ = (frame_.cols / 2) - centroid.x;
-
-    // cv::imshow("mask", mask);
-    // cv::imshow("canny", canny);
-    // cv::imshow("erosion", erosion);
-    // cv::imshow("dilate", dilate);
-    // cv::imshow("opening", opening);
-    cv::imshow("layout", layout);
+    cv::imshow("erosion", erosion_);
+    cv::imshow("dilate", dilate_);
+    cv::imshow("opening", opening_);
+    cv::imshow("canny", canny_);
+    cv::imshow("layout", layout_);
 
     return true;
 }
@@ -128,6 +76,67 @@ bool Cam_to_Wheel::Publish()
     dist_msg_.pixel_dist_x = pixel_dist_x_;
 
     pub_.publish(dist_msg_);
+
+    return true;
+}
+
+bool Cam_to_Wheel::ImageWeightedCentroid()
+{
+    std::vector<std::vector<cv::Point>> contours;
+    std::vector<cv::Vec4i> hierachy;
+    std::vector<cv::RotatedRect> minRect;
+    cv::Point2f rect_points[4];
+    cv::Point2f centroid(0.f, 0.f);
+
+    cv::findContours(pre_proc_, contours, hierachy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+    minRect.reserve(contours.size());
+
+    for (size_t i = 0; i < contours.size(); ++i) //filtering small contour and push into minRect array
+    {
+        if (cv::contourArea(contours[i]) > 500)
+        {
+            minRect.emplace_back(cv::minAreaRect(contours[i]));
+            cv::drawContours(layout_, contours, i, BGR.white, -1, cv::LINE_8);
+        }
+    }
+
+    std::vector<cv::Point2f> centers(minRect.size());
+    int total_weight_x = 0;
+    int total_weight_y = 0;
+
+    for (size_t i = 0; i < minRect.size(); ++i)
+    {
+        minRect[i].points(rect_points);
+
+        cv::Rect weight = minRect[i].boundingRect();
+
+        centers[i] = minRect[i].center;
+        centroid.x += centers[i].x * weight.x;
+        centroid.y += centers[i].y * weight.y;
+        total_weight_x += weight.x;
+        total_weight_y += weight.y;
+
+        cv::circle(layout_, centers[i], 4, BGR.green);
+
+        for (int j = 0; j < 4; ++j)
+            cv::line(layout_, rect_points[j], rect_points[(j + 1) % 4], BGR.red, 5);
+    }
+
+    if (minRect.size() != 0)
+    {
+        centroid.x = centroid.x / total_weight_x;
+        centroid.y = centroid.y / total_weight_y;
+    }
+    else
+    {
+        centroid.x = frame_.cols / 2;
+        centroid.y = frame_.rows / 2;
+    }
+
+    cv::circle(layout_, centroid, 16, BGR.blue, -1);
+
+    pixel_dist_x_ = (frame_.cols / 2) - centroid.x;
+    pixel_dist_y_ = (frame_.rows / 2) - centroid.y;
 
     return true;
 }

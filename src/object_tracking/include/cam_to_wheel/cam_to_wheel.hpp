@@ -29,7 +29,20 @@ private:
 
     cv::Mat frame_;
 
+    cv::Mat blur_;
+    cv::Mat hsv_;
+    cv::Mat mask_;
+    cv::Mat opening_;
+    cv::Mat closing_;
+    cv::Mat erosion_;
+    cv::Mat dilate_;
+    cv::Mat canny_;
+    cv::Mat layout_;
+
+    cv::Mat pre_proc_;
+
     double pixel_dist_x_;
+    double pixel_dist_y_;
 
 public:
     Cam_to_Wheel(ros::NodeHandle &nh);
@@ -39,13 +52,18 @@ public:
     bool ImageProcess();
     bool Publish();
 
+    cv::Mat ImagePreProc(cv::Mat input);
+
+    bool ImageWeightedCentroid();
+    bool ImageLargest();
+
     void RecvCallback(const sensor_msgs::ImageConstPtr &img_msg);
 };
 
 struct HSV_Bound
 {
     cv::Scalar upper_green = cv::Scalar(60, 255, 255);
-    cv::Scalar lower_green = cv::Scalar(40, 43, 46);
+    cv::Scalar lower_green = cv::Scalar(40, 21, 21);
     cv::Scalar upper_blue = cv::Scalar(117, 255, 255);
     cv::Scalar lower_blue = cv::Scalar(97, 43, 46);
     cv::Scalar upper_purple = cv::Scalar(146, 255, 255);
@@ -67,4 +85,5 @@ struct BGR_Color
     cv::Scalar green = cv::Scalar(0, 255, 0);
     cv::Scalar blue = cv::Scalar(255, 255, 0);
 } BGR;
+
 #endif
