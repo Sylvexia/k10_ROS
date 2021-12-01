@@ -1,0 +1,19 @@
+<launch>
+
+    <node name="serial_node" pkg="rosserial_python" type="serial_node.py" output="screen">
+        <param name="~port" type="String" value="/dev/ttyUSB0"/>
+    </node>
+
+    <node name="webcam_node" pkg="object_tracking" type="webcam_node" output="screen"/>
+
+    <node name="cam_to_wheel_node" pkg="object_tracking" type="cam_to_wheel_node" output="screen"/>
+
+    <node name="wheel_node" pkg="object_tracking" type="wheel_node" output="screen">
+
+        <param name="kp" type="double" value="0.25"/>
+        <param name="ki" type="double" value="0.0"/>
+        <param name="kd" type="double" value="0.0"/>
+
+    </node>
+
+</launch>

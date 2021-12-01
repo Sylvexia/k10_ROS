@@ -113,11 +113,11 @@ bool Cam_to_Wheel::ImageProcess()
 
     pixel_dist_x_ = (frame_.cols / 2) - centroid.x;
 
-    cv::imshow("mask", mask);
-    cv::imshow("canny", canny);
-    cv::imshow("erosion", erosion);
-    cv::imshow("dilate", dilate);
-    cv::imshow("opening", opening);
+    // cv::imshow("mask", mask);
+    // cv::imshow("canny", canny);
+    // cv::imshow("erosion", erosion);
+    // cv::imshow("dilate", dilate);
+    // cv::imshow("opening", opening);
     cv::imshow("layout", layout);
 
     return true;

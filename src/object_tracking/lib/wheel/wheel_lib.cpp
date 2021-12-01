@@ -28,7 +28,6 @@ bool Wheel::Publish()
     wheel_msg_.left = int(pid_value_);
     wheel_msg_.right = int(-(pid_value_));
 
-    ROS_INFO("left wheel: [%d]", wheel_msg_.left);
     pub_.publish(wheel_msg_);
 
     return true;
