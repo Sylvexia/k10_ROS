@@ -44,14 +44,14 @@ bool Cam_to_Wheel::ImageProcess() //return the double dist_x_
 
     layout_ = cv::Mat::zeros(frame_.size(), CV_8SC3);
 
-    pre_proc_=ImagePreProc(frame_);
-    ImageWeightedCentroid();
+    pre_proc_ = ImagePreProc(frame_);
+    //ImageWeightedCentroid(pre_proc_);
+    ImageLargestContour(pre_proc_);
 
-    cv::imshow("preproc",ImagePreProc(frame_));
+    cv::imshow("preproc", pre_proc_);
     cv::imshow("erosion", erosion_);
     cv::imshow("dilate", dilate_);
     cv::imshow("opening", opening_);
-    cv::imshow("canny", canny_);
     cv::imshow("layout", layout_);
 
     return true;
@@ -77,19 +77,20 @@ cv::Mat Cam_to_Wheel::ImagePreProc(cv::Mat input)
     cv::dilate(erosion_, dilate_, std::vector<int>(3, 3), anchor, 6);
     cv::morphologyEx(dilate_, opening_, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_CROSS, cv::Size2d(7, 7)), anchor, 1);
     cv::Canny(opening_, canny_, 40, 160);
-    
-    return canny_;
+
+    return opening_;
 }
 
-bool Cam_to_Wheel::ImageWeightedCentroid()
+std::array<double, 2> Cam_to_Wheel::ImageWeightedCentroid(cv::Mat input)
 {
     std::vector<std::vector<cv::Point>> contours;
     std::vector<cv::Vec4i> hierachy;
     std::vector<cv::RotatedRect> minRect;
+    std::array<double, 2> dist_point;
     cv::Point2f rect_points[4];
     cv::Point2f centroid(0.f, 0.f);
 
-    cv::findContours(pre_proc_, contours, hierachy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+    cv::findContours(input, contours, hierachy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
     minRect.reserve(contours.size());
 
     for (size_t i = 0; i < contours.size(); ++i) //filtering small contour and push into minRect array
@@ -102,6 +103,7 @@ bool Cam_to_Wheel::ImageWeightedCentroid()
     }
 
     std::vector<cv::Point2f> centers(minRect.size());
+
     int total_weight_x = 0;
     int total_weight_y = 0;
 
@@ -130,14 +132,47 @@ bool Cam_to_Wheel::ImageWeightedCentroid()
     }
     else
     {
-        centroid.x = frame_.cols / 2;
-        centroid.y = frame_.rows / 2;
+        centroid.x = input.cols / 2;
+        centroid.y = input.rows / 2;
     }
 
     cv::circle(layout_, centroid, 16, BGR.blue, -1);
 
-    pixel_dist_x_ = (frame_.cols / 2) - centroid.x;
-    pixel_dist_y_ = (frame_.rows / 2) - centroid.y;
+    dist_point[0] = (input.cols / 2) - centroid.x;
+    dist_point[1] = (input.rows / 2) - centroid.y;
 
-    return true;
+    pixel_dist_x_ = dist_point[0];
+    pixel_dist_y_ = dist_point[1];
+
+    return dist_point;
+}
+
+std::array<double, 2> Cam_to_Wheel::ImageLargestContour(cv::Mat input)
+{
+    std::vector<std::vector<cv::Point>> contours;
+    std::vector<cv::Vec4i> hierachy;
+    std::vector<double> contours_areas;
+    std::array<double, 2> dist_point;
+
+    cv::findContours(input, contours, hierachy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+    contours_areas.reserve(contours.size());
+
+    for (size_t i = 0; i < contours.size(); ++i)
+        contours_areas.emplace_back(cv::contourArea(contours[i]));
+
+    auto max_contour_area = std::max_element(contours_areas.begin(), contours_areas.end());
+    int max_index = std::distance(contours_areas.begin(), max_contour_area);
+
+    cv::RotatedRect minRect = cv::minAreaRect(contours[max_index]);
+
+    dist_point[0] = (input.cols / 2) - minRect.center.x;
+    dist_point[1] = (input.rows / 2) - minRect.center.y;
+
+    cv::drawContours(layout_, contours, max_index, BGR.white, -1, cv::LINE_8);
+    cv::circle(layout_, minRect.center, 16, BGR.blue, -1);
+
+    pixel_dist_x_ = dist_point[0];
+    pixel_dist_y_ = dist_point[1];
+
+    return dist_point;
 }

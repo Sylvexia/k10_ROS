@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 #include <vector>
+#include <array>
+#include <algorithm>
 
 #include <ros/ros.h>
 #include <cv_bridge/cv_bridge.h>
@@ -57,8 +59,8 @@ public:
 
     cv::Mat ImagePreProc(cv::Mat input);
 
-    bool ImageWeightedCentroid();
-    bool ImageLargest();
+    std::array<double, 2> ImageWeightedCentroid(cv::Mat input);
+    std::array<double, 2> ImageLargestContour(cv::Mat input);
 
     void RecvCallback(const sensor_msgs::ImageConstPtr &img_msg);
 };
