@@ -27,6 +27,9 @@ private:
     const sensor_msgs::ImageConstPtr img_msg_;
     object_tracking::image_dist_msg dist_msg_;
 
+    cv::Scalar hsv_upper_bound_;
+    cv::Scalar hsv_lower_bound_;
+
     cv::Mat frame_;
 
     cv::Mat blur_;

@@ -39,29 +39,15 @@ void Cam_to_Wheel::RecvCallback(const sensor_msgs::ImageConstPtr &img_msg_)
 
 bool Cam_to_Wheel::ImageProcess() //return the double dist_x_
 {
-    cv::Point2d anchor = cv::Point2d(-1, -1);
-
-    cv::Scalar hsv_upper_set = HSV.upper_green;
-    cv::Scalar hsv_lower_set = HSV.lower_green;
+    hsv_upper_bound_ = HSV.upper_green;
+    hsv_lower_bound_ = HSV.lower_green;
 
     layout_ = cv::Mat::zeros(frame_.size(), CV_8SC3);
 
-    std::vector<std::vector<cv::Point>> contours;
-    std::vector<cv::Vec4i> hierachy;
-
-    //pre process
-    cv::GaussianBlur(frame_, blur_, cv::Size2d(11, 11), 0);
-    cv::cvtColor(blur_, hsv_, cv::COLOR_BGR2HSV);
-    cv::inRange(hsv_, hsv_lower_set, hsv_upper_set, mask_);
-    cv::erode(mask_, erosion_, std::vector<int>(3, 3), anchor, 6);
-    cv::dilate(erosion_, dilate_, std::vector<int>(3, 3), anchor, 6);
-    cv::morphologyEx(dilate_, opening_, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_CROSS, cv::Size2d(7, 7)), anchor, 1);
-    cv::Canny(opening_, canny_, 40, 160);
-    //pre process
-    pre_proc_=canny_;
+    pre_proc_=ImagePreProc(frame_);
     ImageWeightedCentroid();
 
-
+    cv::imshow("preproc",ImagePreProc(frame_));
     cv::imshow("erosion", erosion_);
     cv::imshow("dilate", dilate_);
     cv::imshow("opening", opening_);
@@ -78,6 +64,21 @@ bool Cam_to_Wheel::Publish()
     pub_.publish(dist_msg_);
 
     return true;
+}
+
+cv::Mat Cam_to_Wheel::ImagePreProc(cv::Mat input)
+{
+    cv::Point2d anchor = cv::Point2d(-1, -1);
+
+    cv::GaussianBlur(input, blur_, cv::Size2d(11, 11), 0);
+    cv::cvtColor(blur_, hsv_, cv::COLOR_BGR2HSV);
+    cv::inRange(hsv_, hsv_lower_bound_, hsv_upper_bound_, mask_);
+    cv::erode(mask_, erosion_, std::vector<int>(3, 3), anchor, 6);
+    cv::dilate(erosion_, dilate_, std::vector<int>(3, 3), anchor, 6);
+    cv::morphologyEx(dilate_, opening_, cv::MORPH_OPEN, cv::getStructuringElement(cv::MORPH_CROSS, cv::Size2d(7, 7)), anchor, 1);
+    cv::Canny(opening_, canny_, 40, 160);
+    
+    return canny_;
 }
 
 bool Cam_to_Wheel::ImageWeightedCentroid()
