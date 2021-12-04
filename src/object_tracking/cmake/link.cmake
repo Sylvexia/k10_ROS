@@ -19,6 +19,7 @@ ${catkin_LIBRARIES}
 target_link_libraries(wheel_node
 wheel_lib
 pid
+conio
 ${catkin_LIBRARIES}
 )
 
