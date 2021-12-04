@@ -6,6 +6,7 @@
 #include <object_tracking/image_dist_msg.h>
 #include <iostream>
 
+#include "conio.h"
 #include "pid.hpp"
 
 //wheel control for two wheel motor
@@ -26,13 +27,14 @@ private:
 
 public:
     Wheel(ros::NodeHandle &nh, PID &pid);
+    Wheel(ros::NodeHandle &nh);
     ~Wheel();
 
-    bool Run();
-
-    void RecvCallback(object_tracking::image_dist_msg img_dist_msg);
-
+    bool Run_PID();
+    bool KeyboardCtrl();
     bool Publish();
+
+    void Run_PID_Callback(object_tracking::image_dist_msg img_dist_msg);
 };
 
 #endif

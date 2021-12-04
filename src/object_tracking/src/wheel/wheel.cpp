@@ -15,7 +15,7 @@ int main(int argc, char **argv)
 
     Wheel wheel(nh, pid);
 
-    wheel.Run();
+    wheel.Run_PID();
 
     ros::spin();
 
