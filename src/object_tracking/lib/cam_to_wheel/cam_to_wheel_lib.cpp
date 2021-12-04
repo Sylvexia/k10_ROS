@@ -155,6 +155,16 @@ std::array<double, 2> Cam_to_Wheel::ImageLargestContour(cv::Mat input)
     std::array<double, 2> dist_point;
 
     cv::findContours(input, contours, hierachy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+
+    if (contours.size() == 0)   //early return, preventing null number
+    {
+        dist_point[0] = (input.cols / 2);
+        dist_point[1] = (input.rows / 2);
+        pixel_dist_x_ = 0;
+        pixel_dist_y_ = 0;
+        return dist_point;
+    }
+
     contours_areas.reserve(contours.size());
 
     for (size_t i = 0; i < contours.size(); ++i)
