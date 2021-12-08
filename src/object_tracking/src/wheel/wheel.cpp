@@ -13,11 +13,9 @@ int main(int argc, char **argv)
 
     PID pid(kp, ki, kd, 0.0);
 
-    //Wheel wheel(nh, pid);
+    Wheel wheel(nh, pid);
 
-    //wheel.Run_PID();
-
-    Wheel Wheel(nh);
+    wheel.Run_PID();
 
     ros::spin();
 
