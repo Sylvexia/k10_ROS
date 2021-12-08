@@ -26,6 +26,7 @@ private:
     double pid_value_;
 
 public:
+    Wheel();
     Wheel(ros::NodeHandle &nh, PID &pid);
     Wheel(ros::NodeHandle &nh);
     ~Wheel();

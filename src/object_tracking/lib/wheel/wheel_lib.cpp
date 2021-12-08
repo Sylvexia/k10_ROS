@@ -1,9 +1,20 @@
 #include "wheel/wheel.hpp"
 
+Wheel::Wheel()
+{
+    ROS_INFO("Default Wheel Constructor");
+}
+
 Wheel::Wheel(ros::NodeHandle &nh, PID &pid)
     : nh_(nh), pid_(pid), pid_value_(0.0)
 {
     ROS_INFO("\nWheel PID Class Constructed");
+}
+
+Wheel::Wheel(ros::NodeHandle &nh)
+    : nh_(nh)
+{
+    ROS_INFO("\nWheel Ctrl Class Constructed");
 }
 
 Wheel::~Wheel()
