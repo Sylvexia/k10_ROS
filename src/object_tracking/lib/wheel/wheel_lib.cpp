@@ -39,10 +39,12 @@ bool Wheel::KeyboardCtrl()
 
 bool Wheel::Publish()
 {
-    pid_value_ = pid_.pidCtrl(pixel_dist_x_, 0.01);
+    pid_value_ = pid_.pidCtrl(pixel_dist_x_, 0);
 
     wheel_msg_.left = int(pid_value_);
     wheel_msg_.right = int(-(pid_value_));
+
+    ROS_INFO("%d",wheel_msg_.left);
 
     pub_.publish(wheel_msg_);
 
