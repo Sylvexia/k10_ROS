@@ -22,23 +22,10 @@ void setup()
 
 void loop()
 {
-    rightMotor.drive(255, 1000);
-    rightMotor.drive(-255, 1000);
-    rightMotor.brake();
+    forward(rightMotor, leftMotor, 64);
     delay(1000);
 
-    leftMotor.drive(255, 1000);
-    leftMotor.drive(-255, 1000);
-    leftMotor.brake();
-    delay(1000);
-
-    forward(rightMotor, leftMotor, 150);
-    delay(1000);
-
-    back(rightMotor, leftMotor, 150);
-    delay(1000);
-
-    brake(rightMotor, leftMotor);
+    back(rightMotor, leftMotor, 64);
     delay(1000);
 
     left(leftMotor, rightMotor, 150);
