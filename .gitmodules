@@ -5,3 +5,6 @@
 [submodule "src/object_tracking/deps/conio"]
 	path = src/object_tracking/deps/conio
 	url = https://gitlab.ical.tw/jamesljlster/conio
+[submodule "src/object_tracking/deps/pid"]
+	path = src/object_tracking/deps/pid
+	url = git@gitlab.ical.tw:a1085125/pid_sylvex.git
